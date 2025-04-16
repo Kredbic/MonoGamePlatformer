@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Linq;
 
 namespace TestGame
 {
@@ -15,6 +14,8 @@ namespace TestGame
         private const int TileSize = 8;
         private const int SpriteOffsetY = 8;
 
+        private int[,] _map;
+
         // === Hráč ===
         private Vector2 _playerPosition;
         private Vector2 _playerVelocity;
@@ -25,8 +26,7 @@ namespace TestGame
         private const float JumpForce = -6f;
         private const float GravityForce = 0.4f;
 
-        // === Mapa ===
-        private int[,] _map;
+        private PlayerState _playerState = PlayerState.Idle;
 
         public Game1()
         {
@@ -41,10 +41,13 @@ namespace TestGame
             _playerVelocity = Vector2.Zero;
 
             string[] level = {
-                "00000",
-                "1x300",
-                "45443",
-                "78889"
+                "0000000000000000000000",
+                "0000000000000000000000",
+                "0000000000000000000000",
+                "0000000000000000000000",
+                "13x0000000001222223000",
+                "4522222222225555555300",
+                "7888888888888888888900"
             };
 
             LoadMapFromStringArray(level);
@@ -67,25 +70,38 @@ namespace TestGame
             Vector2 newPosition = _playerPosition;
             Vector2 velocity = _playerVelocity;
 
+            _playerState = PlayerState.Idle;
+
             if (keyboard.IsKeyDown(Keys.A))
+            {
                 newPosition.X -= MoveSpeed;
+                _playerState = PlayerState.Move;
+            }
+
             if (keyboard.IsKeyDown(Keys.D))
+            {
                 newPosition.X += MoveSpeed;
+                _playerState = PlayerState.Move;
+            }
 
             if (_isOnGround && (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Space)))
             {
                 velocity.Y = JumpForce;
                 _isOnGround = false;
+                _playerState = PlayerState.Jump;
             }
 
+            if (!_isOnGround && velocity.Y != 0)
+                _playerState = PlayerState.Jump;
+
+            // === Gravitace ===
             velocity += _gravity;
             newPosition.Y += velocity.Y;
 
             Rectangle futureBounds = new Rectangle((int)newPosition.X, (int)newPosition.Y, PlayerSize, PlayerSize);
-
             _isOnGround = false;
 
-            // Dolní kolize
+            // === Kolize dolů
             if (velocity.Y >= 0)
             {
                 Rectangle feet = new Rectangle(futureBounds.X, futureBounds.Y + PlayerSize, PlayerSize, 1);
@@ -97,7 +113,7 @@ namespace TestGame
                 }
             }
 
-            // Horní kolize
+            // === Kolize nahoru
             if (velocity.Y < 0)
             {
                 Rectangle head = new Rectangle(futureBounds.X, futureBounds.Y, PlayerSize, 1);
@@ -108,14 +124,14 @@ namespace TestGame
                 }
             }
 
-            // Levá kolize
+            // === Kolize vlevo
             Rectangle left = new Rectangle(futureBounds.X, futureBounds.Y, 1, PlayerSize);
             if (IsColliding(left))
             {
                 newPosition.X = (float)Math.Floor(newPosition.X / TileSize + 1) * TileSize;
             }
 
-            // Pravá kolize
+            // === Kolize vpravo
             Rectangle right = new Rectangle(futureBounds.X + PlayerSize, futureBounds.Y, 1, PlayerSize);
             if (IsColliding(right))
             {
@@ -147,8 +163,14 @@ namespace TestGame
                 }
             }
 
-            Rectangle playerSrc = new Rectangle(0, 0, 8, 8);
-            _spriteBatch.Draw(_spriteSheet, _playerPosition, playerSrc, Color.White);
+            Rectangle playerSource = _playerState switch
+            {
+                PlayerState.Move => new Rectangle(8, 0, 8, 8),
+                PlayerState.Jump => new Rectangle(16, 0, 8, 8),
+                _ => new Rectangle(0, 0, 8, 8)
+            };
+
+            _spriteBatch.Draw(_spriteSheet, _playerPosition, playerSource, Color.White);
 
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -216,6 +238,13 @@ namespace TestGame
                 }
             }
             return false;
+        }
+
+        enum PlayerState
+        {
+            Idle,
+            Move,
+            Jump
         }
     }
 }
