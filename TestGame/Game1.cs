@@ -56,13 +56,18 @@ namespace TestGame
             _playerVelocity = Vector2.Zero;
 
             string[] level = {
-                "0000000000000000000000",
-                "0000000000000000000000",
-                "0000000000000000000000",
-                "0000000000000000000000",
-                "13x0000000001222223000",
-                "4522222222225555555300",
-                "7888888888888888888900"
+                "000000000000ooooo000000000000000000000000000000000000000000000",
+                "000000000000000000000abbbbbc0000000000000000000000000000000000",
+                "000000000000000000000ghhhhhi00000000ac0000000ac000000ac0000000",
+                "000000000000000000000000000000000000gi0000000gi000000gebc00000",
+                "000000000000000000000000000000000000000000000000000000ghi00000",
+                "00000000000000000000000000000000000000000000000000000000000000",
+                "00000000000000000000000000000000000000000000000000000000000000",
+                "00000000000000000000000000000000000000000000000000000000000000",
+                "13x00000000012222230000000000000000000000000000000000000000130",
+                "45222222222255555553000000122222223000000000000001300000000753",
+                "78888888888888888889000000788855555222222300000007901300000079",
+                "00000000000000000000000000000078888888888900000000007900000000"
             };
 
             LoadMapFromStringArray(level);
@@ -115,7 +120,6 @@ namespace TestGame
             Rectangle futureBounds = new Rectangle((int)newPosition.X, (int)newPosition.Y, PlayerSize, PlayerSize);
             _isOnGround = false;
 
-            // === Kolize
             if (velocity.Y >= 0)
             {
                 Rectangle feet = new Rectangle(futureBounds.X, futureBounds.Y + PlayerSize, PlayerSize, 1);
@@ -148,19 +152,16 @@ namespace TestGame
             _playerPosition = newPosition;
             _playerVelocity = velocity;
 
-            // === Kamera sleduje hráče ===
             var viewport = _graphics.GraphicsDevice.Viewport;
             _cameraPosition = _playerPosition - new Vector2(viewport.Width / (2 * _zoom), viewport.Height / (2 * _zoom));
             _cameraTransform = Matrix.CreateTranslation(new Vector3(-_cameraPosition, 0)) * Matrix.CreateScale(_zoom);
 
-            // === Respawn pokud hráč spadne pod mapu
             if (_playerPosition.Y > _map.GetLength(0) * TileSize + 100)
             {
                 _playerPosition = _playerSpawnPoint;
                 _playerVelocity = Vector2.Zero;
             }
 
-            // === Idle animace: každou sekundu přepnout snímek
             _idleAnimTimer += gameTime.ElapsedGameTime.TotalSeconds;
             if (_idleAnimTimer >= 1)
             {
@@ -206,10 +207,25 @@ namespace TestGame
 
         private Rectangle GetSourceRectFromTileId(int id)
         {
-            int index = id - 1;
-            int col = index % 3;
-            int row = index / 3;
-            return new Rectangle(col * TileSize, SpriteOffsetY + row * TileSize, TileSize, TileSize);
+            if (id >= 1 && id <= 9)
+            {
+                int index = id - 1;
+                int col = index % 3;
+                int row = index / 3;
+                return new Rectangle(col * TileSize, SpriteOffsetY + row * TileSize, TileSize, TileSize);
+            }
+            else if (id >= 10 && id <= 18) // a-i -> 10-18
+            {
+                int index = id - 10;
+                int col = index % 3;
+                int row = index / 3;
+                return new Rectangle(3 * TileSize + col * TileSize, SpriteOffsetY + row * TileSize, TileSize, TileSize);
+            }
+            else if (id == 19) // 'o' block
+            {
+                return new Rectangle(4 * TileSize, 0, TileSize, TileSize);
+            }
+            return Rectangle.Empty;
         }
 
         private void LoadMapFromStringArray(string[] lines)
@@ -236,6 +252,14 @@ namespace TestGame
                     else if (char.IsDigit(c))
                     {
                         _map[y, x] = int.Parse(c.ToString());
+                    }
+                    else if (c >= 'a' && c <= 'i')
+                    {
+                        _map[y, x] = 10 + (c - 'a');
+                    }
+                    else if (c == 'o')
+                    {
+                        _map[y, x] = 19;
                     }
                     else
                     {
