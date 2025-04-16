@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yew4B/YEzLQ=",
+  "dgSpecHash": "REqte+gHfs4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\petr.kredba\\Desktop\\CsharpTest\\MonoGameTest\\TestGame\\TestGame.csproj",
+  "projectFilePath": "C:\\Users\\petr.kredba\\Desktop\\Clone\\TestGame\\TestGame.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\petr.kredba\\.nuget\\packages\\microsoft.netcore.app\\2.1.30\\microsoft.netcore.app.2.1.30.nupkg.sha512",
     "C:\\Users\\petr.kredba\\.nuget\\packages\\microsoft.netcore.dotnetapphost\\2.1.30\\microsoft.netcore.dotnetapphost.2.1.30.nupkg.sha512",

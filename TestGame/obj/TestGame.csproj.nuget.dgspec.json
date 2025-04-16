@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\petr.kredba\\Desktop\\CsharpTest\\MonoGameTest\\TestGame\\TestGame.csproj": {}
+    "C:\\Users\\petr.kredba\\Desktop\\Clone\\TestGame\\TestGame.csproj": {}
   },
   "projects": {
-    "C:\\Users\\petr.kredba\\Desktop\\CsharpTest\\MonoGameTest\\TestGame\\TestGame.csproj": {
+    "C:\\Users\\petr.kredba\\Desktop\\Clone\\TestGame\\TestGame.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\petr.kredba\\Desktop\\CsharpTest\\MonoGameTest\\TestGame\\TestGame.csproj",
+        "projectUniqueName": "C:\\Users\\petr.kredba\\Desktop\\Clone\\TestGame\\TestGame.csproj",
         "projectName": "TestGame",
-        "projectPath": "C:\\Users\\petr.kredba\\Desktop\\CsharpTest\\MonoGameTest\\TestGame\\TestGame.csproj",
+        "projectPath": "C:\\Users\\petr.kredba\\Desktop\\Clone\\TestGame\\TestGame.csproj",
         "packagesPath": "C:\\Users\\petr.kredba\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\petr.kredba\\Desktop\\CsharpTest\\MonoGameTest\\TestGame\\obj\\",
+        "outputPath": "C:\\Users\\petr.kredba\\Desktop\\Clone\\TestGame\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

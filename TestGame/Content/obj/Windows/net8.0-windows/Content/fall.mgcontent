@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>C:/Users/petr.kredba/Desktop/Clone/TestGame/Content/fall.mp3</SourceFile>
+  <SourceTime>2025-04-16T14:59:28.5233687+02:00</SourceTime>
+  <DestFile>C:/Users/petr.kredba/Desktop/Clone/TestGame/Content/bin/Windows/Content/fall.xnb</DestFile>
+  <DestTime>2025-04-16T15:15:39.471576+02:00</DestTime>
+  <Importer>Mp3Importer</Importer>
+  <ImporterTime>2025-04-05T12:10:54+02:00</ImporterTime>
+  <Processor>SoundEffectProcessor</Processor>
+  <ProcessorTime>2025-04-05T12:10:54+02:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

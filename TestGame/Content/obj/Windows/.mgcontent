@@ -4,9 +4,11 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/petr.kredba/Desktop/CsharpTest/MonoGameTest/TestGame/Content/player.png</File>
+    <File>C:/Users/petr.kredba/Desktop/Clone/TestGame/Content/fall.mp3</File>
+    <File>C:/Users/petr.kredba/Desktop/Clone/TestGame/Content/player.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

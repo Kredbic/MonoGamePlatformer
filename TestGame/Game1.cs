@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TestGame
 {
@@ -10,13 +11,13 @@ namespace TestGame
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _spriteSheet;
+        private SoundEffect _fallSound;
 
         private const int TileSize = 8;
         private const int SpriteOffsetY = 8;
-
         private int[,] _map;
 
-        // === Hráč ===
+        // === Player
         private Vector2 _playerPosition;
         private Vector2 _playerVelocity;
         private Vector2 _gravity;
@@ -29,7 +30,7 @@ namespace TestGame
 
         private PlayerState _playerState = PlayerState.Idle;
 
-        // === Idle animace ===
+        // === Idle animation
         private double _idleAnimTimer = 0;
         private int _idleFrameIndex = 0;
         private readonly Rectangle[] _idleFrames = new Rectangle[]
@@ -38,10 +39,10 @@ namespace TestGame
             new Rectangle(24, 0, 8, 8)
         };
 
-        // === Kamera ===
+        // === Camera
         private Matrix _cameraTransform;
         private Vector2 _cameraPosition;
-        private float _zoom = 2f; // <--- Zoom kamery, můžeš zakomentovat pro úpravu mapy
+        private float _zoom = 2f; // Optional zoom
 
         public Game1()
         {
@@ -57,10 +58,9 @@ namespace TestGame
 
             string[] level = {
                 "00000000000000000000000000000000000000000000000000000000000000",
-                "000000000000ooooo000000000000000000000000000000000000000000000",
                 "000000000000000000000abbbbbc0000000000000000000000000000000000",
-                "000000000000000000000ghhhhhi00000000ac0000000ac000000ac0000000",
-                "000000000000000000000000000000000000gi0000000gi000000gebc00000",
+                "000000000ooooo0000000ghhhhhi00000000ac0000000ac000000ac0000000",
+                "000000000000000000000000000000000000gi000000000000000gebc00000",
                 "000000000000000000000000000000000000000000000000000000ghi00000",
                 "00000000000000000000000000000000000000000000000000000000000000",
                 "00000000000000000000000000000000000000000000000000000000000000",
@@ -79,6 +79,7 @@ namespace TestGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _spriteSheet = Content.Load<Texture2D>("player");
+            _fallSound = Content.Load<SoundEffect>("fall"); // 🔊
         }
 
         protected override void Update(GameTime gameTime)
@@ -121,6 +122,7 @@ namespace TestGame
             Rectangle futureBounds = new Rectangle((int)newPosition.X, (int)newPosition.Y, PlayerSize, PlayerSize);
             _isOnGround = false;
 
+            // Bottom collision
             if (velocity.Y >= 0)
             {
                 Rectangle feet = new Rectangle(futureBounds.X, futureBounds.Y + PlayerSize, PlayerSize, 1);
@@ -132,6 +134,7 @@ namespace TestGame
                 }
             }
 
+            // Top collision
             if (velocity.Y < 0)
             {
                 Rectangle head = new Rectangle(futureBounds.X, futureBounds.Y, PlayerSize, 1);
@@ -142,10 +145,12 @@ namespace TestGame
                 }
             }
 
+            // Left collision
             Rectangle left = new Rectangle(futureBounds.X, futureBounds.Y, 1, PlayerSize);
             if (IsColliding(left))
                 newPosition.X = (float)Math.Floor(newPosition.X / TileSize + 1) * TileSize;
 
+            // Right collision
             Rectangle right = new Rectangle(futureBounds.X + PlayerSize, futureBounds.Y, 1, PlayerSize);
             if (IsColliding(right))
                 newPosition.X = (float)Math.Floor((newPosition.X + PlayerSize) / TileSize) * TileSize - PlayerSize;
@@ -153,16 +158,20 @@ namespace TestGame
             _playerPosition = newPosition;
             _playerVelocity = velocity;
 
+            // Camera follow
             var viewport = _graphics.GraphicsDevice.Viewport;
             _cameraPosition = _playerPosition - new Vector2(viewport.Width / (2 * _zoom), viewport.Height / (2 * _zoom));
             _cameraTransform = Matrix.CreateTranslation(new Vector3(-_cameraPosition, 0)) * Matrix.CreateScale(_zoom);
 
+            // Respawn with sound
             if (_playerPosition.Y > _map.GetLength(0) * TileSize + 100)
             {
+                _fallSound.Play(); // 🔊
                 _playerPosition = _playerSpawnPoint;
                 _playerVelocity = Vector2.Zero;
             }
 
+            // Idle animation timer
             _idleAnimTimer += gameTime.ElapsedGameTime.TotalSeconds;
             if (_idleAnimTimer >= 1)
             {
@@ -208,24 +217,25 @@ namespace TestGame
 
         private Rectangle GetSourceRectFromTileId(int id)
         {
-            if (id >= 1 && id <= 9)
+            if (id >= 1 && id <= 9) // 1–9
             {
                 int index = id - 1;
                 int col = index % 3;
                 int row = index / 3;
                 return new Rectangle(col * TileSize, SpriteOffsetY + row * TileSize, TileSize, TileSize);
             }
-            else if (id >= 10 && id <= 18) // a-i -> 10-18
+            else if (id >= 10 && id <= 18) // a–i
             {
                 int index = id - 10;
                 int col = index % 3;
                 int row = index / 3;
                 return new Rectangle(3 * TileSize + col * TileSize, SpriteOffsetY + row * TileSize, TileSize, TileSize);
             }
-            else if (id == 19) // 'o' block
+            else if (id == 19) // 'o' single tile
             {
                 return new Rectangle(4 * TileSize, 0, TileSize, TileSize);
             }
+
             return Rectangle.Empty;
         }
 

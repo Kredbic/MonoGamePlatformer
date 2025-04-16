@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/petr.kredba/Desktop/CsharpTest/MonoGameTest/TestGame/Content/player.png</SourceFile>
-  <SourceTime>2025-04-16T09:46:37.1441273+02:00</SourceTime>
-  <DestFile>C:/Users/petr.kredba/Desktop/CsharpTest/MonoGameTest/TestGame/Content/bin/Windows/player.xnb</DestFile>
-  <DestTime>2025-04-16T11:30:26.512449+02:00</DestTime>
+  <SourceFile>C:/Users/petr.kredba/Desktop/Clone/TestGame/Content/player.png</SourceFile>
+  <SourceTime>2025-04-16T15:10:26.1710067+02:00</SourceTime>
+  <DestFile>C:/Users/petr.kredba/Desktop/Clone/TestGame/Content/bin/Windows/player.xnb</DestFile>
+  <DestTime>2025-04-16T15:12:25.4240805+02:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-04-05T12:10:54+02:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
