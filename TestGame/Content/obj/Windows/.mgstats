@@ -1,0 +1,2 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/petr.kredba/Desktop/CsharpTest/MonoGameTest/TestGame/Content/player.png","C:/Users/petr.kredba/Desktop/CsharpTest/MonoGameTest/TestGame/Content/bin/Windows/player.xnb","TextureProcessor","Texture2DContent",913,65621,0,193215
