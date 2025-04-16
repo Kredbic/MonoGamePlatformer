@@ -2,50 +2,72 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace TestGame;
-
-public class Game1 : Game
+namespace TestGame
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-
-    public Game1()
+    public class Game1 : Game
     {
-        _graphics = new GraphicsDeviceManager(this);
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
-    }
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
 
-    protected override void Initialize()
-    {
-        // TODO: Add your initialization logic here
+        private Texture2D _playerTexture;
+        private Rectangle _sourceRect;  // Výřez 8x8 z levého horního rohu
+        private Vector2 _playerPosition;
 
-        base.Initialize();
-    }
+        public Game1()
+        {
+            _graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+        }
 
-    protected override void LoadContent()
-    {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        protected override void Initialize()
+        {
+            // Umístění hráče někde na obrazovce
+            _playerPosition = new Vector2(100, 100);
+            base.Initialize();
+        }
 
-        // TODO: use this.Content to load your game content here
-    }
+        protected override void LoadContent()
+        {
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-    protected override void Update(GameTime gameTime)
-    {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+            // Načteme spritesheet
+            _playerTexture = Content.Load<Texture2D>("player");
 
-        // TODO: Add your update logic here
+            // Výřez 8x8 z levého horního rohu
+            _sourceRect = new Rectangle(0, 0, 8, 8);
+        }
 
-        base.Update(gameTime);
-    }
+        protected override void Update(GameTime gameTime)
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
 
-    protected override void Draw(GameTime gameTime)
-    {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+            base.Update(gameTime);
+        }
 
-        // TODO: Add your drawing code here
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        base.Draw(gameTime);
+            _spriteBatch.Begin();
+
+            // Vykresli hráče
+            _spriteBatch.Draw(
+                _playerTexture,
+                _playerPosition,
+                _sourceRect,
+                Color.White,
+                0f,
+                Vector2.Zero,
+                5f, // zvětšíme 5x pro viditelnost
+                SpriteEffects.None,
+                0f
+            );
+
+            _spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
     }
 }
