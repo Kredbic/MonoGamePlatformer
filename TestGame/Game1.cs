@@ -18,6 +18,7 @@ namespace TestGame
 
         private const float PlayerScale = 5f;
         private const int SpriteSize = 8;
+        private const float MoveSpeed = 3f;
 
         public Game1()
         {
@@ -47,40 +48,43 @@ namespace TestGame
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            _playerVelocity += _gravity;
-            _playerPosition += _playerVelocity;
+            var keyboardState = Keyboard.GetState();
 
-            // Hranice okna
+            // Horizontální pohyb (A, D)
+            if (keyboardState.IsKeyDown(Keys.A))
+                _playerPosition.X -= MoveSpeed;
+            if (keyboardState.IsKeyDown(Keys.D))
+                _playerPosition.X += MoveSpeed;
+
+            // Aplikace gravitace
+            _playerVelocity += _gravity;
+            _playerPosition += new Vector2(0, _playerVelocity.Y);
+
+            // Kolize s hranami obrazovky
             float screenWidth = _graphics.PreferredBackBufferWidth;
             float screenHeight = _graphics.PreferredBackBufferHeight;
             float playerSize = SpriteSize * PlayerScale;
 
-            // Dolní okraj
             if (_playerPosition.Y + playerSize > screenHeight)
             {
                 _playerPosition.Y = screenHeight - playerSize;
                 _playerVelocity.Y = 0;
             }
 
-            // Horní okraj
             if (_playerPosition.Y < 0)
             {
                 _playerPosition.Y = 0;
                 _playerVelocity.Y = 0;
             }
 
-            // Pravý okraj
             if (_playerPosition.X + playerSize > screenWidth)
             {
                 _playerPosition.X = screenWidth - playerSize;
-                _playerVelocity.X = 0;
             }
 
-            // Levý okraj
             if (_playerPosition.X < 0)
             {
                 _playerPosition.X = 0;
-                _playerVelocity.X = 0;
             }
 
             base.Update(gameTime);
