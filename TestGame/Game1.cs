@@ -16,6 +16,9 @@ namespace TestGame
         private Vector2 _playerVelocity;
         private Vector2 _gravity;
 
+        private const float PlayerScale = 5f;
+        private const int SpriteSize = 8;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -27,7 +30,7 @@ namespace TestGame
         {
             _playerPosition = new Vector2(100, 100);
             _playerVelocity = Vector2.Zero;
-            _gravity = new Vector2(0, 0.5f); // gravitace dolů
+            _gravity = new Vector2(0, 0.5f);
 
             base.Initialize();
         }
@@ -36,7 +39,7 @@ namespace TestGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _playerTexture = Content.Load<Texture2D>("player");
-            _sourceRect = new Rectangle(0, 0, 8, 8);
+            _sourceRect = new Rectangle(0, 0, SpriteSize, SpriteSize);
         }
 
         protected override void Update(GameTime gameTime)
@@ -44,11 +47,41 @@ namespace TestGame
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Aplikace gravitace na rychlost
             _playerVelocity += _gravity;
-
-            // Aplikace rychlosti na pozici
             _playerPosition += _playerVelocity;
+
+            // Hranice okna
+            float screenWidth = _graphics.PreferredBackBufferWidth;
+            float screenHeight = _graphics.PreferredBackBufferHeight;
+            float playerSize = SpriteSize * PlayerScale;
+
+            // Dolní okraj
+            if (_playerPosition.Y + playerSize > screenHeight)
+            {
+                _playerPosition.Y = screenHeight - playerSize;
+                _playerVelocity.Y = 0;
+            }
+
+            // Horní okraj
+            if (_playerPosition.Y < 0)
+            {
+                _playerPosition.Y = 0;
+                _playerVelocity.Y = 0;
+            }
+
+            // Pravý okraj
+            if (_playerPosition.X + playerSize > screenWidth)
+            {
+                _playerPosition.X = screenWidth - playerSize;
+                _playerVelocity.X = 0;
+            }
+
+            // Levý okraj
+            if (_playerPosition.X < 0)
+            {
+                _playerPosition.X = 0;
+                _playerVelocity.X = 0;
+            }
 
             base.Update(gameTime);
         }
@@ -65,7 +98,7 @@ namespace TestGame
                 Color.White,
                 0f,
                 Vector2.Zero,
-                5f,
+                PlayerScale,
                 SpriteEffects.None,
                 0f
             );
