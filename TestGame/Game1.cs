@@ -10,8 +10,11 @@ namespace TestGame
         private SpriteBatch _spriteBatch;
 
         private Texture2D _playerTexture;
-        private Rectangle _sourceRect;  // Výřez 8x8 z levého horního rohu
+        private Rectangle _sourceRect;
+
         private Vector2 _playerPosition;
+        private Vector2 _playerVelocity;
+        private Vector2 _gravity;
 
         public Game1()
         {
@@ -22,19 +25,17 @@ namespace TestGame
 
         protected override void Initialize()
         {
-            // Umístění hráče někde na obrazovce
             _playerPosition = new Vector2(100, 100);
+            _playerVelocity = Vector2.Zero;
+            _gravity = new Vector2(0, 0.5f); // gravitace dolů
+
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Načteme spritesheet
             _playerTexture = Content.Load<Texture2D>("player");
-
-            // Výřez 8x8 z levého horního rohu
             _sourceRect = new Rectangle(0, 0, 8, 8);
         }
 
@@ -42,6 +43,12 @@ namespace TestGame
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            // Aplikace gravitace na rychlost
+            _playerVelocity += _gravity;
+
+            // Aplikace rychlosti na pozici
+            _playerPosition += _playerVelocity;
 
             base.Update(gameTime);
         }
@@ -51,8 +58,6 @@ namespace TestGame
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-
-            // Vykresli hráče
             _spriteBatch.Draw(
                 _playerTexture,
                 _playerPosition,
@@ -60,11 +65,10 @@ namespace TestGame
                 Color.White,
                 0f,
                 Vector2.Zero,
-                5f, // zvětšíme 5x pro viditelnost
+                5f,
                 SpriteEffects.None,
                 0f
             );
-
             _spriteBatch.End();
 
             base.Draw(gameTime);
