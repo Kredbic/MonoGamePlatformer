@@ -42,8 +42,8 @@ namespace TestGame
 
             string[] level = {
                 "00000",
-                "13x00",
-                "45223",
+                "1x300",
+                "45443",
                 "78889"
             };
 
@@ -64,27 +64,66 @@ namespace TestGame
             if (keyboard.IsKeyDown(Keys.Escape))
                 Exit();
 
+            Vector2 newPosition = _playerPosition;
+            Vector2 velocity = _playerVelocity;
+
             if (keyboard.IsKeyDown(Keys.A))
-                _playerPosition.X -= MoveSpeed;
+                newPosition.X -= MoveSpeed;
             if (keyboard.IsKeyDown(Keys.D))
-                _playerPosition.X += MoveSpeed;
+                newPosition.X += MoveSpeed;
 
             if (_isOnGround && (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Space)))
             {
-                _playerVelocity.Y = JumpForce;
+                velocity.Y = JumpForce;
                 _isOnGround = false;
             }
 
-            _playerVelocity += _gravity;
-            _playerPosition += new Vector2(0, _playerVelocity.Y);
+            velocity += _gravity;
+            newPosition.Y += velocity.Y;
 
-            float screenHeight = _graphics.PreferredBackBufferHeight;
-            if (_playerPosition.Y + PlayerSize >= screenHeight)
+            Rectangle futureBounds = new Rectangle((int)newPosition.X, (int)newPosition.Y, PlayerSize, PlayerSize);
+
+            _isOnGround = false;
+
+            // Dolní kolize
+            if (velocity.Y >= 0)
             {
-                _playerPosition.Y = screenHeight - PlayerSize;
-                _playerVelocity.Y = 0;
-                _isOnGround = true;
+                Rectangle feet = new Rectangle(futureBounds.X, futureBounds.Y + PlayerSize, PlayerSize, 1);
+                if (IsColliding(feet))
+                {
+                    newPosition.Y = (float)Math.Floor((newPosition.Y + PlayerSize) / TileSize) * TileSize - PlayerSize;
+                    velocity.Y = 0;
+                    _isOnGround = true;
+                }
             }
+
+            // Horní kolize
+            if (velocity.Y < 0)
+            {
+                Rectangle head = new Rectangle(futureBounds.X, futureBounds.Y, PlayerSize, 1);
+                if (IsColliding(head))
+                {
+                    newPosition.Y = (float)Math.Floor(newPosition.Y / TileSize + 1) * TileSize;
+                    velocity.Y = 0;
+                }
+            }
+
+            // Levá kolize
+            Rectangle left = new Rectangle(futureBounds.X, futureBounds.Y, 1, PlayerSize);
+            if (IsColliding(left))
+            {
+                newPosition.X = (float)Math.Floor(newPosition.X / TileSize + 1) * TileSize;
+            }
+
+            // Pravá kolize
+            Rectangle right = new Rectangle(futureBounds.X + PlayerSize, futureBounds.Y, 1, PlayerSize);
+            if (IsColliding(right))
+            {
+                newPosition.X = (float)Math.Floor((newPosition.X + PlayerSize) / TileSize) * TileSize - PlayerSize;
+            }
+
+            _playerPosition = newPosition;
+            _playerVelocity = velocity;
 
             base.Update(gameTime);
         }
@@ -140,7 +179,7 @@ namespace TestGame
                     if (c == 'x')
                     {
                         _playerPosition = new Vector2(x * TileSize, y * TileSize);
-                        _map[y, x] = 0; // není to tile
+                        _map[y, x] = 0;
                         playerFound++;
                     }
                     else if (char.IsDigit(c))
@@ -155,9 +194,28 @@ namespace TestGame
             }
 
             if (playerFound != 1)
+                throw new Exception($"Mapa musí obsahovat právě jedno 'x'. Nalezeno: {playerFound}");
+        }
+
+        private bool IsColliding(Rectangle area)
+        {
+            int startX = area.Left / TileSize;
+            int endX = (area.Right - 1) / TileSize;
+            int startY = area.Top / TileSize;
+            int endY = (area.Bottom - 1) / TileSize;
+
+            for (int y = startY; y <= endY; y++)
             {
-                throw new Exception($"Mapa musí obsahovat právě jedno 'x' (hráč). Nalezeno: {playerFound}");
+                for (int x = startX; x <= endX; x++)
+                {
+                    if (y >= 0 && y < _map.GetLength(0) && x >= 0 && x < _map.GetLength(1))
+                    {
+                        if (_map[y, x] != 0)
+                            return true;
+                    }
+                }
             }
+            return false;
         }
     }
 }
