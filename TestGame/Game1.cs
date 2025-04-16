@@ -20,6 +20,7 @@ namespace TestGame
         private Vector2 _playerPosition;
         private Vector2 _playerVelocity;
         private Vector2 _gravity;
+        private Vector2 _playerSpawnPoint;
         private bool _isOnGround;
         private const int PlayerSize = 8;
         private const float MoveSpeed = 2.5f;
@@ -27,6 +28,15 @@ namespace TestGame
         private const float GravityForce = 0.4f;
 
         private PlayerState _playerState = PlayerState.Idle;
+
+        // === Idle animace ===
+        private double _idleAnimTimer = 0;
+        private int _idleFrameIndex = 0;
+        private readonly Rectangle[] _idleFrames = new Rectangle[]
+        {
+            new Rectangle(0, 0, 8, 8),
+            new Rectangle(24, 0, 8, 8)
+        };
 
         // === Kamera ===
         private Matrix _cameraTransform;
@@ -138,10 +148,25 @@ namespace TestGame
             _playerPosition = newPosition;
             _playerVelocity = velocity;
 
-            // === Kamera – sleduje hráče ===
+            // === Kamera sleduje hráče ===
             var viewport = _graphics.GraphicsDevice.Viewport;
             _cameraPosition = _playerPosition - new Vector2(viewport.Width / (2 * _zoom), viewport.Height / (2 * _zoom));
             _cameraTransform = Matrix.CreateTranslation(new Vector3(-_cameraPosition, 0)) * Matrix.CreateScale(_zoom);
+
+            // === Respawn pokud hráč spadne pod mapu
+            if (_playerPosition.Y > _map.GetLength(0) * TileSize + 100)
+            {
+                _playerPosition = _playerSpawnPoint;
+                _playerVelocity = Vector2.Zero;
+            }
+
+            // === Idle animace: každou sekundu přepnout snímek
+            _idleAnimTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            if (_idleAnimTimer >= 1)
+            {
+                _idleAnimTimer = 0;
+                _idleFrameIndex = (_idleFrameIndex + 1) % _idleFrames.Length;
+            }
 
             base.Update(gameTime);
         }
@@ -169,6 +194,7 @@ namespace TestGame
             {
                 PlayerState.Move => new Rectangle(8, 0, 8, 8),
                 PlayerState.Jump => new Rectangle(16, 0, 8, 8),
+                PlayerState.Idle => _idleFrames[_idleFrameIndex],
                 _ => new Rectangle(0, 0, 8, 8)
             };
 
@@ -203,6 +229,7 @@ namespace TestGame
                     if (c == 'x')
                     {
                         _playerPosition = new Vector2(x * TileSize, y * TileSize);
+                        _playerSpawnPoint = _playerPosition;
                         _map[y, x] = 0;
                         playerFound++;
                     }
