@@ -28,6 +28,11 @@ namespace TestGame
 
         private PlayerState _playerState = PlayerState.Idle;
 
+        // === Kamera ===
+        private Matrix _cameraTransform;
+        private Vector2 _cameraPosition;
+        private float _zoom = 2f; // <--- Zoom kamery, můžeš zakomentovat pro úpravu mapy
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -94,14 +99,13 @@ namespace TestGame
             if (!_isOnGround && velocity.Y != 0)
                 _playerState = PlayerState.Jump;
 
-            // === Gravitace ===
             velocity += _gravity;
             newPosition.Y += velocity.Y;
 
             Rectangle futureBounds = new Rectangle((int)newPosition.X, (int)newPosition.Y, PlayerSize, PlayerSize);
             _isOnGround = false;
 
-            // === Kolize dolů
+            // === Kolize
             if (velocity.Y >= 0)
             {
                 Rectangle feet = new Rectangle(futureBounds.X, futureBounds.Y + PlayerSize, PlayerSize, 1);
@@ -113,7 +117,6 @@ namespace TestGame
                 }
             }
 
-            // === Kolize nahoru
             if (velocity.Y < 0)
             {
                 Rectangle head = new Rectangle(futureBounds.X, futureBounds.Y, PlayerSize, 1);
@@ -124,22 +127,21 @@ namespace TestGame
                 }
             }
 
-            // === Kolize vlevo
             Rectangle left = new Rectangle(futureBounds.X, futureBounds.Y, 1, PlayerSize);
             if (IsColliding(left))
-            {
                 newPosition.X = (float)Math.Floor(newPosition.X / TileSize + 1) * TileSize;
-            }
 
-            // === Kolize vpravo
             Rectangle right = new Rectangle(futureBounds.X + PlayerSize, futureBounds.Y, 1, PlayerSize);
             if (IsColliding(right))
-            {
                 newPosition.X = (float)Math.Floor((newPosition.X + PlayerSize) / TileSize) * TileSize - PlayerSize;
-            }
 
             _playerPosition = newPosition;
             _playerVelocity = velocity;
+
+            // === Kamera – sleduje hráče ===
+            var viewport = _graphics.GraphicsDevice.Viewport;
+            _cameraPosition = _playerPosition - new Vector2(viewport.Width / (2 * _zoom), viewport.Height / (2 * _zoom));
+            _cameraTransform = Matrix.CreateTranslation(new Vector3(-_cameraPosition, 0)) * Matrix.CreateScale(_zoom);
 
             base.Update(gameTime);
         }
@@ -147,7 +149,7 @@ namespace TestGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(transformMatrix: _cameraTransform);
 
             for (int y = 0; y < _map.GetLength(0); y++)
             {
